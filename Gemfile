@@ -25,6 +25,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem "plutus", "0.12.2"
 gem "activeadmin", "1.0.0.pre2"
+gem "devise", "~> 3.5"
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
