@@ -23,7 +23,6 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
-gem "plutus", "0.12.2"
 gem "activeadmin", "1.0.0.pre2"
 gem "devise", "~> 3.5"
 
@@ -49,3 +48,4 @@ group :development do
   gem 'spring'
 end
 
+gem "plutus", github: "imacchiato/plutus", ref: "978a21d"
