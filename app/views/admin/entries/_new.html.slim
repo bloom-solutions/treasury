@@ -1,0 +1,17 @@
+/`-` because https://github.com/activeadmin/activeadmin/issues/3613
+= semantic_form_for [:admin, Plutus::Entry.new] do |f|
+  = f.inputs do
+    - f.input :description
+    - f.input :date, as: :string, input_html: {class: "datepicker"}
+
+  = f.inputs "Debits" do
+    = f.semantic_fields_for :debits do |debit|
+      - debit.input :account_name, collection: Plutus::Account.all.pluck(:name)
+  = f.semantic_fields_for :credits do |credit|
+    = credit.inputs "Credit 1" do
+      - credit.input :account_name, collection: Plutus::Account.all.pluck(:name)
+      - credit.input :amount
+    = credit.inputs "Credit 2" do
+      - credit.input :account_name, collection: Plutus::Account.all.pluck(:name)
+      - credit.input :amount
+  - f.submit
