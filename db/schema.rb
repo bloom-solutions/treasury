@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160303015209) do
+ActiveRecord::Schema.define(version: 20160303022239) do
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace"
@@ -27,6 +27,39 @@ ActiveRecord::Schema.define(version: 20160303015209) do
   add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id"
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace"
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id"
+
+  create_table "plutus_accounts", force: :cascade do |t|
+    t.string   "name"
+    t.string   "type"
+    t.boolean  "contra"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "plutus_accounts", ["name", "type"], name: "index_plutus_accounts_on_name_and_type"
+
+  create_table "plutus_amounts", force: :cascade do |t|
+    t.string  "type"
+    t.integer "account_id"
+    t.integer "entry_id"
+    t.decimal "amount",     precision: 20, scale: 10
+  end
+
+  add_index "plutus_amounts", ["account_id", "entry_id"], name: "index_plutus_amounts_on_account_id_and_entry_id"
+  add_index "plutus_amounts", ["entry_id", "account_id"], name: "index_plutus_amounts_on_entry_id_and_account_id"
+  add_index "plutus_amounts", ["type"], name: "index_plutus_amounts_on_type"
+
+  create_table "plutus_entries", force: :cascade do |t|
+    t.string   "description"
+    t.date     "date"
+    t.integer  "commercial_document_id"
+    t.string   "commercial_document_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "plutus_entries", ["commercial_document_id", "commercial_document_type"], name: "index_entries_on_commercial_doc"
+  add_index "plutus_entries", ["date"], name: "index_plutus_entries_on_date"
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
