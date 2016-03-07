@@ -36,59 +36,52 @@ ActiveAdmin.register Plutus::Account, as: "Account" do
     active_admin_comments
 
     panel "Entries" do
-      table_for account.entries do
-        column(:date)
-        column(:id)
-        column(:description)
-        column("Decrease") do |entry|
-          if account.normal_credit_balance
-            entry.debit_amounts.where(account_id: account.id).sum(:amount)
-          else
-            entry.credit_amounts.where(account_id: account.id).sum(:amount)
-          end
-        end
-        column("Increase") do |entry|
-          if account.normal_credit_balance
-            entry.credit_amounts.where(account_id: account.id).sum(:amount)
-          else
-            entry.debit_amounts.where(account_id: account.id).sum(:amount)
-          end
-        end
-        column("Balance") do |entry|
-          # NOTE: this only works because we're using integers for IDs
-          credit_sum =
-            account.credit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
-          debit_sum =
-            account.debit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+      render "admin/accounts/entries", account: account
+    end
 
-          if account.normal_credit_balance
-            credit_sum - debit_sum
-          else
-            debit_sum - credit_sum
+    panel "Entries (auto)" do
+      per_page = 50
+      last_page = (account.entries.count / per_page.to_f).ceil
+      page = params[:entries_page] || last_page
+      entries = account.entries.page(page).per(per_page)
+
+      paginated_collection(entries, param_name: 'entries_page') do
+        table_for entries do
+          column(:date)
+          column(:id)
+          column(:description)
+          column("Decrease") do |entry|
+            if account.normal_credit_balance
+              entry.debit_amounts.where(account_id: account.id).sum(:amount)
+            else
+              entry.credit_amounts.where(account_id: account.id).sum(:amount)
+            end
+          end
+          column("Increase") do |entry|
+            if account.normal_credit_balance
+              entry.credit_amounts.where(account_id: account.id).sum(:amount)
+            else
+              entry.debit_amounts.where(account_id: account.id).sum(:amount)
+            end
+          end
+          column("Balance") do |entry|
+            # NOTE: this only works because we're using integers for IDs. Move
+            # to window functions to get this working properly.
+            credit_sum =
+              account.credit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+            debit_sum =
+              account.debit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+
+            if account.normal_credit_balance
+              credit_sum - debit_sum
+            else
+              debit_sum - credit_sum
+            end
           end
         end
       end
     end
 
-    # panel "New Entry" do
-    #   render "admin/entries/new", account: resource
-    # end
-    panel "Credit #{account.name}" do
-    #   form Plutus::Entry.new do |f|
-    #     f.input :description
-    #     f.input :date, as: :string, input_html: {class: "datepicker"}
-    #     f.semantic_fields_for :credits do |credit|
-    #       credit.inputs "Credit 1" do
-    #         credit.input :account_name, collection: Plutus::Account.all.pluck(:name)
-    #         credit.input :amount
-    #       end
-    #       credit.inputs "Credit 2" do
-    #         credit.input :account_name, collection: Plutus::Account.all.pluck(:name)
-    #         credit.input :amount
-    #       end
-    #     end
-    #   end
-    end
   end
 
 end

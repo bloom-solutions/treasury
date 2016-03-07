@@ -1,0 +1,30 @@
+table border=0 cellspacing=0 cellpadding=0
+  thead
+    tr
+      th.col.col-date Date
+      th.col.col-id Id
+      th.col.col-description Description
+      th.col.col-decrease Decrease
+      th.col.col-increase Increase
+      th.col.col-balance Balance
+  tbody
+    - account.entries.order(date: :asc, created_at: :asc).each_with_index do |entry, i|
+      tr(class=(i.even? ? "even" : "odd"))
+        td.col.col-date= entry.date
+        td.col.col-id= entry.id
+        td.col.col-description= entry.description
+        td.col.col-decrease
+          - if account.normal_credit_balance
+            = entry.debit_amounts.where(account_id: account.id).sum(:amount)
+          - else
+            = entry.credit_amounts.where(account_id: account.id).sum(:amount)
+        td.col.col-increase
+          - if account.normal_credit_balance
+            = entry.credit_amounts.where(account_id: account.id).sum(:amount)
+          - else
+            = entry.debit_amounts.where(account_id: account.id).sum(:amount)
+        td.col.col-balance
+          /# NOTE: this only works because we're using integers for IDs. Use window functions instead
+          - credit_sum = account.credit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+          - debit_sum = account.debit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+          = account.normal_credit_balance ? credit_sum - debit_sum : debit_sum - credit_sum
