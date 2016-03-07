@@ -35,8 +35,39 @@ ActiveAdmin.register Plutus::Account, as: "Account" do
 
     active_admin_comments
 
-    table_for account.entries do
-      column(:description)
+    panel "Entries" do
+      table_for account.entries do
+        column(:date)
+        column(:id)
+        column(:description)
+        column("Decrease") do |entry|
+          if account.normal_credit_balance
+            entry.debit_amounts.where(account_id: account.id).sum(:amount)
+          else
+            entry.credit_amounts.where(account_id: account.id).sum(:amount)
+          end
+        end
+        column("Increase") do |entry|
+          if account.normal_credit_balance
+            entry.credit_amounts.where(account_id: account.id).sum(:amount)
+          else
+            entry.debit_amounts.where(account_id: account.id).sum(:amount)
+          end
+        end
+        column("Balance") do |entry|
+          # NOTE: this only works because we're using integers for IDs
+          credit_sum =
+            account.credit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+          debit_sum =
+            account.debit_amounts.where("entry_id <= ?", entry.id).sum(:amount)
+
+          if account.normal_credit_balance
+            credit_sum - debit_sum
+          else
+            debit_sum - credit_sum
+          end
+        end
+      end
     end
 
     # panel "New Entry" do
